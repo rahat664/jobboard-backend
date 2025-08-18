@@ -4,10 +4,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { Application } from '../schemas/application.schema';
+import { FilterQuery, Model, Types } from 'mongoose';
+import { Application, ApplicationDocument } from '../schemas/application.schema';
 import { Job } from '../../jobs/schemas/job.schema';
 import { CreateApplicationDto } from '../dto/create-application.dto';
+import { QueryApplicationsDto } from '../dto/query-applications.dto';
 
 type ApplicationResponse = {
   id: string;
@@ -46,5 +47,32 @@ export class ApplicationsService {
       createdAt: created.createdAt!, // defined via timestamps
       message: 'Application submitted',
     };
+  }
+
+  async findAll(q: QueryApplicationsDto) {
+    const { search, jobId, offset = 0, limit = 20 } = q;
+
+    const filter: FilterQuery<ApplicationDocument> = {};
+    if (jobId) filter.jobId = jobId;
+
+    if (search && search.trim()) {
+      const rx = new RegExp(search.trim(), 'i');
+      filter.$or = [{ name: rx }, { email: rx }, { coverText: rx }];
+    }
+
+    const [items, total] = await Promise.all([
+      this.appModel
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .skip(offset)
+        .limit(limit)
+        .lean()
+        .exec(),
+      this.appModel.countDocuments(filter),
+    ]);
+
+    // Map _id → id for frontend convenience
+    const mapped = items.map((x: any) => ({ id: String(x._id), ...x }));
+    return { items: mapped, total, offset, limit };
   }
 }
