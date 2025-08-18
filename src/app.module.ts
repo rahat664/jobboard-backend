@@ -39,6 +39,7 @@ import * as process from 'node:process';
           then: Joi.required(),
           otherwise: Joi.optional(),
         }),
+        CORS_ORIGIN: Joi.string().optional().default('*'),
       }),
     }),
     MongooseModule.forRootAsync({
