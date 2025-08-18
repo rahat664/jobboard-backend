@@ -1,43 +1,71 @@
 import { Test } from '@nestjs/testing';
-import { MongooseModule } from '@nestjs/mongoose';
-import { Job, JobSchema } from '../src/jobs/schemas/job.schema';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import mongoose from 'mongoose';
 import { JobsService } from '../src/jobs/service/jobs.service';
+import { getModelToken } from '@nestjs/mongoose';
+import { createJobModelMock } from './utils/mock-model';
 
 describe('JobsService', () => {
   let service: JobsService;
-  let mongod: MongoMemoryServer;
+  let jobModel: any;
 
-  beforeAll(async () => {
-    mongod = await MongoMemoryServer.create();
+  beforeEach(async () => {
+    jobModel = createJobModelMock([]);
     const moduleRef = await Test.createTestingModule({
-      imports: [
-        MongooseModule.forRoot(await mongod.getUri()),
-        MongooseModule.forFeature([{ name: Job.name, schema: JobSchema }]),
+      providers: [
+        JobsService,
+        { provide: getModelToken('Job'), useValue: jobModel },
       ],
-      providers: [JobsService],
     }).compile();
 
     service = moduleRef.get(JobsService);
   });
 
-  afterAll(async () => {
-    await mongoose.disconnect();
-    await mongod.stop();
+  it('creates a job', async () => {
+    const dto = {
+      title: 'Backend Engineer',
+      company: 'Globex',
+      location: 'Remote',
+      description: 'NestJS, MongoDB',
+      isActive: true,
+    };
+    const created = await service.create(dto as any);
+    expect(created.title).toBe('Backend Engineer');
+    expect(jobModel.create).toHaveBeenCalled();
   });
 
-  it('creates and reads job', async () => {
-    const created = await service.create({
-      title: 'Frontend Dev',
-      company: 'Acme',
+  it('finds jobs with pagination and search', async () => {
+    // seed
+    await service.create({
+      title: 'Nest Dev',
+      company: 'A',
       location: 'Remote',
-      description: 'React + TypeScript',
+      description: 'x',
       isActive: true,
-    });
-    const list = await service.findAll({ limit: 10, offset: 0 });
-    expect(list.total).toBe(1);
-    const one = await service.findOne((created as any)._id.toString());
-    expect(one.title).toBe('Frontend Dev');
+    } as any);
+    await service.create({
+      title: 'React Dev',
+      company: 'B',
+      location: 'NY',
+      description: 'y',
+      isActive: true,
+    } as any);
+
+    const res = await service.findAll({
+      search: 'Nest',
+      offset: 0,
+      limit: 10,
+    } as any);
+    expect(res.total).toBe(1);
+    expect(res.items[0].title).toContain('Nest');
+  });
+
+  it('findOne returns a job', async () => {
+    const c = await service.create({
+      title: 'X',
+      company: 'Y',
+      location: 'Z',
+      description: '...',
+    } as any);
+    const one = await service.findOne(String((c as any)._id));
+    expect(one.title).toBe('X');
   });
 });
