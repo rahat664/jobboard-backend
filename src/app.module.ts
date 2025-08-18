@@ -19,7 +19,6 @@ if (process.env.NODE_ENV === 'production') {
         : process.env[k],
     ]),
   );
-  // eslint-disable-next-line no-console
   console.error('ENV SNAPSHOT:', snapshot);
 }
 
