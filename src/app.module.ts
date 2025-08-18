@@ -28,6 +28,18 @@ import * as process from 'node:process';
           .required(),
         ADMIN_USER: Joi.string().required(),
         ADMIN_PASS: Joi.string().required(),
+        SWAGGER_ENABLED: Joi.boolean().default(false),
+        SWAGGER_USER: Joi.string().when('SWAGGER_ENABLED', {
+          is: true,
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        }),
+        SWAGGER_PASS: Joi.string().when('SWAGGER_ENABLED', {
+          is: true,
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        }),
+        PUBLIC_URL: Joi.string(),
       }),
     }),
     MongooseModule.forRootAsync({

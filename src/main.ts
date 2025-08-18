@@ -57,7 +57,6 @@ async function bootstrap() {
       .setVersion('1.0.0')
       .addBasicAuth({ type: 'http', scheme: 'basic' }, 'basic')
       .addServer('/')
-      .addServer('/api')
       .build();
 
     const document = SwaggerModule.createDocument(app, config);
@@ -70,7 +69,7 @@ async function bootstrap() {
   const port = Number(process.env.PORT) || 8080;
   await app.listen(port, '0.0.0.0');
 
-  const base = 'https://jobboard-backend-production-612b.up.railway.app';
+  const base = process.env.PUBLIC_URL || `http://localhost:${port}`;
   console.log(`✅ Application ready at ${base}/api`);
   if (process.env.SWAGGER_ENABLED === 'true') {
     console.log(`📚 Swagger UI: ${base}/api/docs`);

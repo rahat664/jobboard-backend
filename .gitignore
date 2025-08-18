@@ -12,8 +12,8 @@ build/
 
 # Env files
 .env.production
-.env.development
 .env.staging
+.env.development
 
 # Logs
 logs/
