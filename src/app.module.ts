@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { JobsModule } from './jobs/jobs.module';
 import { HealthModule } from './health/health.module';
 import { ApplicationsModule } from './applications/application.module';
+import * as process from 'node:process';
 
 @Module({
   imports: [
