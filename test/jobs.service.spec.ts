@@ -28,7 +28,7 @@ function makeJobModelMock(seed: any[] = []) {
   return {
     _state: state,
 
-    create: jest.fn(async (doc: any) => {
+    create: jest.fn((doc: any) => {
       const _id =
         doc._id ?? Math.random().toString(16).slice(2).padEnd(24, '0');
       const created = { ...doc, _id };
@@ -37,24 +37,24 @@ function makeJobModelMock(seed: any[] = []) {
     }),
 
     find: jest.fn((filter: any = {}) => {
-      let items = applyFilter([...state.data], filter);
+      const items = applyFilter([...state.data], filter);
 
       return {
         sort: jest.fn(() => ({
           skip: jest.fn((n: number) => ({
             limit: jest.fn((m: number) => ({
-              lean: jest.fn(async () => items.slice(n).slice(0, m)),
-              exec: jest.fn(async () => items.slice(n).slice(0, m)),
+              lean: jest.fn(() => items.slice(n).slice(0, m)),
+              exec: jest.fn(() => items.slice(n).slice(0, m)),
             })),
           })),
         })),
         // allow direct lean without skip/limit in case service changes
-        lean: jest.fn(async () => items),
-        exec: jest.fn(async () => items),
+        lean: jest.fn(() => items),
+        exec: jest.fn(() => items),
       };
     }),
 
-    countDocuments: jest.fn(async (filter: any = {}) => {
+    countDocuments: jest.fn((filter: any = {}) => {
       return applyFilter([...state.data], filter).length;
     }),
 
@@ -62,8 +62,8 @@ function makeJobModelMock(seed: any[] = []) {
       const found =
         state.data.find((d) => String(d._id) === String(id)) ?? null;
       return {
-        lean: jest.fn(async () => found),
-        exec: jest.fn(async () => found),
+        lean: jest.fn(() => found),
+        exec: jest.fn(() => found),
       };
     }),
   };

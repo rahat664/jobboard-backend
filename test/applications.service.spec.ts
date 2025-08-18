@@ -18,7 +18,7 @@ describe('ApplicationsService', () => {
 
     // ✅ Add a mongoose-like .exists() mock that your service relies on
     // It returns a truthy object when the _id exists, otherwise null
-    jobModel.exists = jest.fn(async (filter: any = {}) => {
+    jobModel.exists = jest.fn((filter: any = {}) => {
       const id = filter?._id;
       if (!id) return null;
       const found = jobModel._data?.some?.(
