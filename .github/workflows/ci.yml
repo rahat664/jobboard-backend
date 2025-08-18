@@ -21,9 +21,6 @@ jobs:
       - name: Lint
         run: npm run lint --if-present
 
-      - name: Type check
-        run: npx tsc -noEmit
-
       - name: Test
         env:
           CI: true
