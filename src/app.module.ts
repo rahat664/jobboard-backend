@@ -15,7 +15,9 @@ import { HealthModule } from './health/health.module';
       envFilePath: '.env',
       cache: true,
       validationSchema: Joi.object({
-        NODE_ENV: Joi.string().default('development'),
+        NODE_ENV: Joi.string()
+          .valid('development', 'staging', 'production')
+          .default('development'),
         PORT: Joi.number().default(3000),
         MONGODB_URI: Joi.string().uri().required(),
         ADMIN_USER: Joi.string().required(),
