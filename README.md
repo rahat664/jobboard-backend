@@ -1,98 +1,336 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Job Board Backend (NestJS + MongoDB)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A clean, production-ready REST API for a mini Job Board.  
+Companies (admin) can post jobs; anyone can view jobs and submit applications.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+- **Framework:** NestJS (Node.js / Express)
+- **Database:** MongoDB (Mongoose)
+- **Auth:** Basic Auth for admin-only job creation
+- **Validation:** `class-validator` + Nest pipes
+- **Config:** `@nestjs/config` + Joi schema validation
+- **Security:** Helmet, compression, CORS
+- **Port:** `8080` (configurable via `PORT`)
+- **Healthcheck:** `GET /api/healthz`
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## ✨ Features
 
-## Project setup
+- Jobs
+    - `GET /api/jobs` — list jobs (search, pagination)
+    - `GET /api/jobs/:id` — job details
+    - `POST /api/jobs` — create job (**admin only** via Basic Auth)
+- Applications
+    - `POST /api/applications` — submit an application (name, email, CV link or cover text)
+- Healthcheck
+    - `GET /api/healthz` — lightweight liveness endpoint
+- Strong validation, errors, and clean DTO responses
+- Multiple environments: **development**, **staging**, **production**
 
-```bash
-$ npm install
+---
+
+## 📁 Project Structure
+
+```
+src/
+  applications/
+    applications.controller.ts
+    applications.module.ts
+    applications.service.ts
+    dto/
+      create-application.dto.ts
+    schemas/
+      application.schema.ts
+  jobs/
+    dto/
+      create-job.dto.ts
+      query-jobs.dto.ts
+    jobs.controller.ts
+    jobs.module.ts
+    jobs.service.ts
+    schemas/
+      job.schema.ts
+  common/
+    guards/
+      basic-auth.guard.ts
+    pipes/
+      objectid.pipe.ts
+  health/
+    health.controller.ts
+    health.module.ts
+  app.module.ts
+  main.ts
 ```
 
-## Compile and run the project
+---
 
+## 🔧 Requirements
+
+- Node.js 18+ (tested on 18, 20)
+- MongoDB (local or Atlas)
+- Git (for CI/CD)
+
+---
+
+## 🧪 Quick Start (Local)
+
+1) **Install deps**
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm ci
 ```
 
-## Run tests
+2) **Create env files at repo root**
+- `.env.development`
+- `.env.staging`
+- `.env.production`
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+Example **`.env.development`**:
+```env
+NODE_ENV=development
+PORT=8080
+MONGODB_URI=mongodb://localhost:27017/jobboard_dev
+ADMIN_USER=devAdmin
+ADMIN_PASS=devPass
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+3) **Run (development)**
+> Works on Windows/Mac/Linux using `cross-env` + `dotenv-cli`.
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm run start:dev
+# API: http://localhost:8080/api
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Resources
+## 📦 Environment Configuration
 
-Check out a few resources that may come in handy when working with NestJS:
+This project uses `@nestjs/config` with Joi validation.  
+**Required variables**:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- `MONGODB_URI` (supports `mongodb://` and `mongodb+srv://`)
+- `ADMIN_USER`
+- `ADMIN_PASS`
+- `PORT` (default 8080)
+- `NODE_ENV` in { `development`, `staging`, `production` }
 
-## Support
+Example **`.env.production`**:
+```env
+NODE_ENV=production
+PORT=8080
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/jobboard
+ADMIN_USER=realAdmin
+ADMIN_PASS=superSecret
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+> In cloud hosts (Railway/Render/Vercel/Container), set these **as environment variables** in the dashboard.
 
-## Stay in touch
+---
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## 🏗️ NPM Scripts
 
-## License
+```json
+{
+  "scripts": {
+    "start": "node dist/main.js",
+    "start:dev": "cross-env NODE_ENV=development dotenv -e .env.development -- nest start --watch",
+    "start:staging": "cross-env NODE_ENV=staging dotenv -e .env.staging -- node dist/main.js",
+    "start:prod": "cross-env NODE_ENV=production dotenv -e .env.production -- node dist/main.js",
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+    "build": "nest build",
+    "lint": "eslint \"src/**/*.ts\"",
+    "test": "jest --passWithNoTests",
+    "test:watch": "jest --watch"
+  }
+}
+```
+
+> On Windows, `cross-env` avoids the “NODE_ENV is not recognized” error.
+
+---
+
+## 🔒 Authentication
+
+Admin-only endpoint `POST /api/jobs` uses **Basic Auth**.
+
+- Header: `Authorization: Basic <base64(username:password)>`
+- Example:
+  ```bash
+  # admin:supersecret (base64)
+  Authorization: Basic YWRtaW46c3VwZXJzZWNyZXQ=
+  ```
+
+Credentials are read from `ADMIN_USER` and `ADMIN_PASS`.
+
+---
+
+## 🧭 API Endpoints & Examples
+
+Base URL (local): `http://localhost:8080/api`
+
+### Health
+```bash
+curl http://localhost:8080/api/healthz
+```
+
+### Jobs — List (with search/pagination)
+```bash
+curl "http://localhost:8080/api/jobs?search=react&offset=0&limit=10"
+```
+
+### Jobs — Get One
+```bash
+curl http://localhost:8080/api/jobs/<jobId>
+```
+
+### Jobs — Create (Admin only)
+```bash
+curl -X POST http://localhost:8080/api/jobs   -H "Content-Type: application/json"   -H "Authorization: Basic $(printf 'devAdmin:devPass' | base64)"   -d '{
+    "title": "Backend Engineer",
+    "company": "Globex",
+    "location": "Remote",
+    "description": "NestJS, MongoDB, AWS"
+  }'
+```
+
+### Applications — Submit
+```bash
+curl -X POST http://localhost:8080/api/applications   -H "Content-Type: application/json"   -d '{
+    "jobId": "<jobId>",
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "cvLink": "https://example.com/cv/jane.pdf"
+  }'
+```
+> Either `cvLink` or `coverText` is required.
+
+---
+
+## 🐳 Docker
+
+**Dockerfile** is multi-stage, non-root, and exposes port **8080**.
+
+Build & run:
+```bash
+docker build -t jobboard-backend:prod .
+docker run -p 8080:8080   -e NODE_ENV=production   -e PORT=8080   -e MONGODB_URI="mongodb+srv://user:pass@cluster/db"   -e ADMIN_USER="realAdmin"   -e ADMIN_PASS="superSecret"   jobboard-backend:prod
+```
+
+### Docker Compose
+
+`docker-compose.yml` (uses `.env.production`):
+```yaml
+services:
+  jobboard-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jobboard-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      PORT: "8080"
+```
+
+Run:
+```bash
+docker compose up --build -d
+docker compose logs -f
+docker compose down
+```
+
+---
+
+## ☁️ Deployment
+
+### Railway / Render (Node service)
+- **Build:** `npm ci && npm run build`
+- **Start:** `node dist/main.js`
+- **Env vars:** `MONGODB_URI`, `ADMIN_USER`, `ADMIN_PASS`, `PORT=8080`, `NODE_ENV=production`
+- Ensure outbound TLS works (Atlas requires proper CA certs; Dockerfile already installs them).
+
+---
+
+## 🤖 CI (GitHub Actions)
+
+Basic CI (lint, test, build) runs on pushes to `main` and PRs.
+
+Example workflow (`.github/workflows/ci.yml`):
+```yaml
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run lint --if-present
+      - run: npx tsc -noEmit
+      - run: npm test -- --passWithNoTests
+      - run: npm run build
+```
+
+> Optional: add a Docker publish job to `ghcr.io` on successful builds of `main`.
+
+---
+
+## 📚 Design Notes
+
+- **Validation:** DTOs + `ValidationPipe` (whitelist, transform, forbid non-whitelisted).
+- **Error Handling:** Proper 400/401/404 codes; minimal leakage of internals.
+- **Security:** Helmet + compression + permissive CORS (adjust origins as needed).
+- **Mongoose:** `timestamps: true`; services return DTOs/lean objects (not raw docs) to avoid `Document<…>` type leaks.
+- **Auth:** Lightweight Basic Auth via header; credentials stored in env.
+
+---
+
+## 🧰 Troubleshooting
+
+- **`Config validation error: "MONGODB_URI" is required…`**
+    - Ensure `.env.<env>` exists at root and script sets `NODE_ENV`.
+    - Use `cross-env` + `dotenv-cli` scripts (already in `package.json`).
+
+- **Windows: `NODE_ENV is not recognized`**
+    - Use provided scripts (`cross-env`) or PowerShell:
+      ```powershell
+      $env:NODE_ENV="development"; nest start --watch
+      ```
+
+- **Docker: compose warns “variable is not set”**
+    - Prefer `env_file: .env.production` instead of `${VAR}` interpolation in `environment:`.
+
+- **MongoDB Atlas SRV URI**
+    - Ensure TLS certs in runtime image (Dockerfile installs `ca-certificates`).
+
+---
+
+## ✅ Commit Style (suggested)
+
+Use Conventional Commits:
+- `feat(jobs): add create job endpoint`
+- `fix(config): ensure env loads on Windows`
+- `chore(docker): update Dockerfile to use port 8080`
+- `docs(readme): add usage examples`
+
+---
+
+## 📝 License
+
+MIT (or your choice)
+
+---
+
+## 🙌 Credits
+
+Built with ❤️ using NestJS, Mongoose, and a sprinkle of good DevOps defaults.
