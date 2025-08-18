@@ -11,6 +11,7 @@ build/
 .cache/
 
 # Env files
+.env
 .env.production
 .env.staging
 .env.development
