@@ -33,7 +33,7 @@ COPY --from=builder /app/dist ./dist
 
 # Healthcheck (expects GET /api/healthz)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget -qO- http://127.0.0.1:${PORT}/api/healthz || exit 1
+  CMD wget -qO- http://127.0.0.1:${PORT}/api/health || exit 1
 
 EXPOSE 8080
 USER app
