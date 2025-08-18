@@ -6,6 +6,15 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { JobsModule } from './jobs/jobs.module';
 import { HealthModule } from './health/health.module';
 import { ApplicationsModule } from './applications/application.module';
+// TEMP: early debug for Railway
+if (process.env.NODE_ENV === 'production') {
+  const keys = ['MONGODB_URI', 'ADMIN_USER', 'ADMIN_PASS', 'PORT', 'NODE_ENV'];
+  const snapshot = Object.fromEntries(
+      keys.map(k => [k, k === 'MONGODB_URI' ? (process.env[k]?.startsWith('mongodb') ? '***present***' : '***missing***') : process.env[k]])
+  );
+  // eslint-disable-next-line no-console
+  console.error('ENV SNAPSHOT:', snapshot);
+}
 
 @Module({
   imports: [
