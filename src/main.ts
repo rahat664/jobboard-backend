@@ -24,8 +24,17 @@ async function bootstrap() {
   app.use(compression());
 
   app.enableCors({
-    origin: parseCorsOrigins(process.env.CORS_ORIGIN),
+    origin: [
+      'http://localhost:5173', // Vite
+      'http://localhost:3000', // CRA/Next dev
+      'http://127.0.0.1:5173',
+      'http://127.0.0.1:3000',
+      'https://jobboard-frontend.your-domain.tld', // prod if any
+    ],
+    methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: false,
+    optionsSuccessStatus: 204,
   });
 
   app.setGlobalPrefix('api');
