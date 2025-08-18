@@ -10,7 +10,14 @@ import { ApplicationsModule } from './applications/application.module';
 if (process.env.NODE_ENV === 'production') {
   const keys = ['MONGODB_URI', 'ADMIN_USER', 'ADMIN_PASS', 'PORT', 'NODE_ENV'];
   const snapshot = Object.fromEntries(
-      keys.map(k => [k, k === 'MONGODB_URI' ? (process.env[k]?.startsWith('mongodb') ? '***present***' : '***missing***') : process.env[k]])
+    keys.map((k) => [
+      k,
+      k === 'MONGODB_URI'
+        ? process.env[k]?.startsWith('mongodb')
+          ? '***present***'
+          : '***missing***'
+        : process.env[k],
+    ]),
   );
   // eslint-disable-next-line no-console
   console.error('ENV SNAPSHOT:', snapshot);
