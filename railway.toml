@@ -1,0 +1,38 @@
+# railway.toml — Deployment config for Railway
+
+# --- Build settings (Nixpacks, no Dockerfile required) ---
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm ci && npm run build"
+
+# --- Runtime / Deploy settings ---
+[deploy]
+startCommand = "node dist/main.js"
+restartPolicyType = "on_failure"   # or "always"
+
+# --- Default envs provided at runtime (non-secrets) ---
+[variables]
+NODE_ENV = "production"
+PORT = "8080"
+# --- Secrets (set in Railway UI) ---
+[secrets]
+MONGODB_URI = "mongodb+srv://rahat664:rahatN664@cluster0.ey3th3e.mongodb.net/jobboard_prod"
+ADMIN_USER = "mainAdmin"
+ADMIN_PASS = "mainPass"
+
+
+# NOTE:
+# - Set secrets in Railway → Service → Variables:
+#     MONGODB_URI=<your Atlas URI>
+#     ADMIN_USER=<admin username>
+#     ADMIN_PASS=<admin password>
+# - Your Nest app should read PORT from env and listen on 0.0.0.0
+#   Example in main.ts:
+#     const port = Number(process.env.PORT) || 8080;
+#     await app.listen(port, '0.0.0.0');
+
+# --- Optional: If you prefer building via Dockerfile instead of Nixpacks ---
+# [build]
+# builder = "DOCKERFILE"
+# dockerfilePath = "Dockerfile"
+# # With Docker builds, Railway ignores build/start commands above.
