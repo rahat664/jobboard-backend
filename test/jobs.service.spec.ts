@@ -1,14 +1,81 @@
+// test/jobs.service.spec.ts
 import { Test } from '@nestjs/testing';
-import { JobsService } from '../src/jobs/service/jobs.service';
 import { getModelToken } from '@nestjs/mongoose';
-import { createJobModelMock } from './utils/mock-model';
+import { JobsService } from '../src/jobs/service/jobs.service';
+
+// ---- Minimal mongoose-like mock for chaining (.find().sort().skip().limit().lean(), .findById().lean()) ----
+function makeJobModelMock(seed: any[] = []) {
+  const state = { data: [...seed] as any[] };
+
+  const applyFilter = (items: any[], filter: any) => {
+    if (!filter || Object.keys(filter).length === 0) return items;
+    if (filter.$or?.length) {
+      return items.filter((j) =>
+        filter.$or.some((cond: any) => {
+          const key = Object.keys(cond)[0];
+          const val = cond[key];
+          if (val?.$regex) {
+            const re = new RegExp(val.$regex, val.$options);
+            return re.test(j[key] ?? '');
+          }
+          return j[key] === val;
+        }),
+      );
+    }
+    return items;
+  };
+
+  return {
+    _state: state,
+
+    create: jest.fn(async (doc: any) => {
+      const _id =
+        doc._id ?? Math.random().toString(16).slice(2).padEnd(24, '0');
+      const created = { ...doc, _id };
+      state.data.push(created);
+      return created;
+    }),
+
+    find: jest.fn((filter: any = {}) => {
+      let items = applyFilter([...state.data], filter);
+
+      return {
+        sort: jest.fn(() => ({
+          skip: jest.fn((n: number) => ({
+            limit: jest.fn((m: number) => ({
+              lean: jest.fn(async () => items.slice(n).slice(0, m)),
+              exec: jest.fn(async () => items.slice(n).slice(0, m)),
+            })),
+          })),
+        })),
+        // allow direct lean without skip/limit in case service changes
+        lean: jest.fn(async () => items),
+        exec: jest.fn(async () => items),
+      };
+    }),
+
+    countDocuments: jest.fn(async (filter: any = {}) => {
+      return applyFilter([...state.data], filter).length;
+    }),
+
+    findById: jest.fn((id: string) => {
+      const found =
+        state.data.find((d) => String(d._id) === String(id)) ?? null;
+      return {
+        lean: jest.fn(async () => found),
+        exec: jest.fn(async () => found),
+      };
+    }),
+  };
+}
 
 describe('JobsService', () => {
   let service: JobsService;
-  let jobModel: any;
+  let jobModel: ReturnType<typeof makeJobModelMock>;
 
   beforeEach(async () => {
-    jobModel = createJobModelMock([]);
+    jobModel = makeJobModelMock([]);
+
     const moduleRef = await Test.createTestingModule({
       providers: [
         JobsService,
@@ -27,9 +94,11 @@ describe('JobsService', () => {
       description: 'NestJS, MongoDB',
       isActive: true,
     };
+
     const created = await service.create(dto as any);
+
+    expect(jobModel.create).toHaveBeenCalledWith(dto);
     expect(created.title).toBe('Backend Engineer');
-    expect(jobModel.create).toHaveBeenCalled();
   });
 
   it('finds jobs with pagination and search', async () => {
@@ -54,6 +123,9 @@ describe('JobsService', () => {
       offset: 0,
       limit: 10,
     } as any);
+
+    expect(jobModel.find).toHaveBeenCalled();
+    expect(jobModel.countDocuments).toHaveBeenCalled();
     expect(res.total).toBe(1);
     expect(res.items[0].title).toContain('Nest');
   });
@@ -64,8 +136,12 @@ describe('JobsService', () => {
       company: 'Y',
       location: 'Z',
       description: '...',
+      isActive: true,
     } as any);
+
     const one = await service.findOne(String((c as any)._id));
+
+    expect(jobModel.findById).toHaveBeenCalled();
     expect(one.title).toBe('X');
   });
 });

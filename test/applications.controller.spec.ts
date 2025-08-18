@@ -1,69 +1,40 @@
-// test/health.e2e-spec.ts
 import { Test } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import request from 'supertest';
-import { HealthModule } from '../src/health/health.module';
-import { AppModule } from '../src/app.module';
+import { ApplicationsService } from '../src/applications/services/applications.service';
+import { ApplicationsController } from '../src/applications/controller/application.controller';
 
-describe('Health (e2e)', () => {
-  let app: INestApplication;
+describe('ApplicationsController', () => {
+  let controller: ApplicationsController;
+  let service: jest.Mocked<ApplicationsService>;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
-      imports: [HealthModule],
+      controllers: [ApplicationsController],
+      providers: [
+        {
+          provide: ApplicationsService,
+          useValue: { create: jest.fn() },
+        },
+      ],
     }).compile();
 
-    app = moduleRef.createNestApplication();
-    // mirror your main.ts behavior
-    app.setGlobalPrefix('api');
-    app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, transform: true }),
-    );
-    await app.init();
+    controller = moduleRef.get(ApplicationsController);
+    service = moduleRef.get(ApplicationsService);
   });
 
-  describe('App (e2e)', () => {
-    let app: INestApplication;
-    const OLD_ENV = process.env;
-
-    beforeAll(async () => {
-      // Provide the env vars AppModule expects
-      process.env = {
-        ...OLD_ENV,
-        NODE_ENV: 'test',
-        PORT: '0',
-        MONGODB_URI: 'mongodb://localhost:27017/jobboard_test', // or a test URI
-        ADMIN_USER: 'testAdmin',
-        ADMIN_PASS: 'testPass',
-        SWAGGER_ENABLED: 'false',
-      };
-
-      const moduleRef = await Test.createTestingModule({
-        imports: [AppModule],
-      }).compile();
-
-      app = moduleRef.createNestApplication();
-      await app.init();
+  it('create calls service.create', async () => {
+    service.create.mockResolvedValue({
+      id: '66b0c2f1a2a1b9c9f1e7a321',
+      jobId: '64d1a47f3d6e2a001f8a1e2c',
+      createdAt: new Date(),
+      message: 'Application submitted',
     });
-
-    afterAll(async () => {
-      await app.close();
-      process.env = OLD_ENV;
-    });
-
-    it('GET /api/healthz → 200', async () => {
-      await request(app.getHttpServer()).get('/api/healthz').expect(200);
-    });
-  });
-
-  afterAll(async () => {
-    await app.close();
-  });
-
-  it('GET /api/healthz → 200 { ok: true }', async () => {
-    const res = await request(app.getHttpServer())
-      .get('/api/health')
-      .expect(200);
-    expect(res.body).toHaveProperty('ok', true);
+    const res = await controller.create({
+      jobId: '64d1a47f3d6e2a001f8a1e2c',
+      name: 'Jane',
+      email: 'j@example.com',
+      cvLink: 'https://example.com/cv.pdf',
+    } as any);
+    expect(service.create).toHaveBeenCalled();
+    expect(res.message).toBe('Application submitted');
   });
 });
