@@ -6,7 +6,8 @@ import {
   ApiBadRequestResponse,
   ApiBasicAuth,
   ApiBody,
-  ApiCreatedResponse, ApiOkResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';

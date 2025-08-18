@@ -5,7 +5,10 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, Types } from 'mongoose';
-import { Application, ApplicationDocument } from '../schemas/application.schema';
+import {
+  Application,
+  ApplicationDocument,
+} from '../schemas/application.schema';
 import { Job } from '../../jobs/schemas/job.schema';
 import { CreateApplicationDto } from '../dto/create-application.dto';
 import { QueryApplicationsDto } from '../dto/query-applications.dto';
