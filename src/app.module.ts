@@ -13,7 +13,13 @@ import { ApplicationsModule } from './applications/application.module';
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
-      envFilePath: [`.env.${process.env.NODE_ENV}`, '.env'],
+      // In production, only use real env vars from the host
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
+      // In dev/staging, load from files
+      envFilePath:
+        process.env.NODE_ENV === 'production'
+          ? undefined
+          : [`.env.${process.env.NODE_ENV}`, '.env'],
       validationSchema: Joi.object({
         NODE_ENV: Joi.string()
           .valid('development', 'staging', 'production')
