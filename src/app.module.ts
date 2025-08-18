@@ -7,7 +7,6 @@ import { JobsModule } from './jobs/jobs.module';
 import { HealthModule } from './health/health.module';
 import { ApplicationsModule } from './applications/application.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -24,7 +23,7 @@ import { ApplicationsModule } from './applications/application.module';
         NODE_ENV: Joi.string()
           .valid('development', 'staging', 'production')
           .default('development'),
-        PORT: Joi.number().default(3000),
+        PORT: Joi.number().default(8080),
         // ✅ accept mongodb & mongodb+srv
         MONGODB_URI: Joi.string()
           .uri({ scheme: ['mongodb', 'mongodb+srv'] })

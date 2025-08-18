@@ -14,3 +14,6 @@ services:
     environment:
       NODE_ENV: production
       PORT: "8080"
+      MONGODB_URI: ${MONGODB_URI}
+      ADMIN_USER: ${ADMIN_USER}
+      ADMIN_PASS: ${ADMIN_PASS}
