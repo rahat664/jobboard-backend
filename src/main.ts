@@ -70,7 +70,7 @@ async function bootstrap() {
   const port = Number(process.env.PORT) || 8080;
   await app.listen(port, '0.0.0.0');
 
-  const base = process.env.PUBLIC_URL || `http://localhost:${port}`;
+  const base = 'https://jobboard-backend-production-612b.up.railway.app'
   console.log(`✅ Application ready at ${base}/api`);
   if (process.env.SWAGGER_ENABLED === 'true') {
     console.log(`📚 Swagger UI: ${base}/api/docs`);
