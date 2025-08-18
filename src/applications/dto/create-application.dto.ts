@@ -1,4 +1,11 @@
-import { IsEmail, IsMongoId, IsOptional, IsString, MinLength, IsUrl } from 'class-validator';
+import {
+  IsEmail,
+  IsMongoId,
+  IsOptional,
+  IsString,
+  MinLength,
+  IsUrl,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateApplicationDto {

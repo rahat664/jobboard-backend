@@ -72,7 +72,26 @@ src/
 
 ---
 
+## 🔧 Configuration
+
+All runtime secrets are stored in `.env` files which are **not committed** to git.
+
+### Using the templates
+1. Download **config-templates.zip** (or see `config/` in the repo).
+2. Unzip and copy one template to the project root:
+  - `.env.development.example` → rename to `.env.development`
+  - `.env.staging.example` → rename to `.env.staging`
+  - `.env.production.example` → rename to `.env.production`
+3. Fill in real values:
+  - `MONGODB_URI` (use `mongodb://` or `mongodb+srv://` and **URL-encode** special characters in the password)
+  - `ADMIN_USER` / `ADMIN_PASS` (for Basic Auth on POST /jobs)
+  - Optional: `SWAGGER_*`, `CORS_ORIGIN`
+4. Local run:
+   ```bash
+   npm run start:dev
+
 ## 🧪 Quick Start (Local)
+
 
 1) **Install deps**
 ```bash

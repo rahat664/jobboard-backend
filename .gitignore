@@ -11,6 +11,9 @@ build/
 .cache/
 
 # Env files
+.env.production
+.env.development
+.env.staging
 
 # Logs
 logs/
@@ -30,3 +33,8 @@ Thumbs.db
 
 # Docker
 docker-compose.override.yml
+
+
+#builds & archives
+*.zip
+!config-templates.zip
