@@ -24,7 +24,8 @@ RUN apk add --no-cache ca-certificates wget && update-ca-certificates
 RUN addgroup -S app && adduser -S app -G app
 
 ENV NODE_ENV=production \
-    PORT=8080
+    PORT=8080 \
+    NODE_OPTIONS=--enable-source-maps
 
 # Copy only what we need
 COPY --from=builder /app/package*.json ./
@@ -33,8 +34,9 @@ COPY --from=builder /app/dist ./dist
 
 # Healthcheck (expects GET /api/healthz)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget -qO- http://127.0.0.1:${PORT}/api/health || exit 1
+  CMD wget -qO- http://127.0.0.1:${PORT}/api/health >/dev/null || exit 1
 
 EXPOSE 8080
 USER app
+
 CMD ["node", "dist/main.js"]

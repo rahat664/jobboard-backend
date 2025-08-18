@@ -4,15 +4,32 @@ import helmet from 'helmet';
 import compression from 'compression';
 import { ValidationPipe } from '@nestjs/common';
 
+function parseCorsOrigins(value?: string) {
+  if (!value || value.trim() === '*') return '*';
+  return value
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use(helmet());
+
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
   app.use(compression());
+
   app.enableCors({
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: parseCorsOrigins(process.env.CORS_ORIGIN), // "*", or list like "https://a.com,https://b.com"
     credentials: false,
   });
+
   app.setGlobalPrefix('api');
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -20,18 +37,16 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  const port = process.env.PORT || 8080;
-  console.log({
-    NODE_ENV: process.env.NODE_ENV,
-    PORT: process.env.PORT,
-    HAS_MONGODB_URI: Boolean(process.env.MONGODB_URI),
-    HAS_ADMIN_USER: Boolean(process.env.ADMIN_USER),
-    HAS_ADMIN_PASS: Boolean(process.env.ADMIN_PASS),
-  });
+
+  const port = Number(process.env.PORT) || 8080;
   await app.listen(port, '0.0.0.0');
-  console.log(`Application is running on: http://localhost:${port}/api`);
+
+  // Avoid hardcoding localhost in container/cloud logs
+  const base = process.env.PUBLIC_URL || `http://0.0.0.0:${port}`;
+  console.log(`✅ Application ready at ${base}/api`);
 }
+
 bootstrap().catch((err) => {
-  console.error('Error during application bootstrap:', err);
+  console.error('❌ Error during application bootstrap:', err);
   process.exit(1);
 });

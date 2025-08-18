@@ -12,9 +12,7 @@ import { ApplicationsModule } from './applications/application.module';
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
-      // In production, only use real env vars from the host
       ignoreEnvFile: process.env.NODE_ENV === 'production',
-      // In dev/staging, load from files
       envFilePath:
         process.env.NODE_ENV === 'production'
           ? undefined
@@ -24,7 +22,6 @@ import { ApplicationsModule } from './applications/application.module';
           .valid('development', 'staging', 'production')
           .default('development'),
         PORT: Joi.number().default(8080),
-        // ✅ accept mongodb & mongodb+srv
         MONGODB_URI: Joi.string()
           .uri({ scheme: ['mongodb', 'mongodb+srv'] })
           .required(),
@@ -36,15 +33,12 @@ import { ApplicationsModule } from './applications/application.module';
       inject: [ConfigService],
       useFactory: (cfg: ConfigService) => ({
         uri: cfg.get<string>('MONGODB_URI'),
-        // dbName taken from the URI path; leave undefined
-        dbName: undefined,
+        dbName: undefined, // infer from URI
       }),
     }),
     JobsModule,
     ApplicationsModule,
     HealthModule,
   ],
-  // controllers: [AppController],
-  // providers: [AppService],
 })
 export class AppModule {}

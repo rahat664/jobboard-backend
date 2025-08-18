@@ -7,9 +7,8 @@ services:
     restart: unless-stopped
     ports:
       - "8080:8080"
+    env_file:
+      - .env.production    # <--- ensures the vars are loaded
     environment:
       NODE_ENV: production
       PORT: "8080"
-      MONGODB_URI: ${MONGODB_URI}
-      ADMIN_USER: ${ADMIN_USER}
-      ADMIN_PASS: ${ADMIN_PASS}
