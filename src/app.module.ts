@@ -39,7 +39,6 @@ import * as process from 'node:process';
           then: Joi.required(),
           otherwise: Joi.optional(),
         }),
-        PUBLIC_URL: Joi.string(),
       }),
     }),
     MongooseModule.forRootAsync({
