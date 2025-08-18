@@ -1,13 +1,12 @@
 services:
   jobboard-backend:
     build:
-      context: .               # project root
-      dockerfile: Dockerfile   # change if your file has a different name or path
+      context: .
+      dockerfile: Dockerfile
     container_name: jobboard-backend
     restart: unless-stopped
     ports:
       - "8080:8080"
-    # Set non-secret overrides explicitly
     environment:
       NODE_ENV: production
       PORT: "8080"

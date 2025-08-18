@@ -11,17 +11,16 @@ COPY . .
 RUN npm run build
 
 # Reinstall runtime deps only (drop dev deps)
-RUN npm ci --omit=dev \
- && npm cache clean --force
+RUN npm ci --omit=dev && npm cache clean --force
 
 # ---- Runtime ----
 FROM node:20-alpine
 WORKDIR /app
 
-# TLS certs (for MongoDB Atlas, https, etc.) + wget for healthcheck
+# TLS certs (for MongoDB Atlas) + wget for healthcheck
 RUN apk add --no-cache ca-certificates wget && update-ca-certificates
 
-# Create non-root user
+# Non-root user
 RUN addgroup -S app && adduser -S app -G app
 
 ENV NODE_ENV=production \
@@ -34,9 +33,8 @@ COPY --from=builder /app/dist ./dist
 
 # Healthcheck (expects GET /api/healthz)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget -qO- http://127.0.0.1:${PORT}/api/health || exit 1
+  CMD wget -qO- http://127.0.0.1:${PORT}/api/healthz || exit 1
 
 EXPOSE 8080
 USER app
-
 CMD ["node", "dist/main.js"]
