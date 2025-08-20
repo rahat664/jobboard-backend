@@ -56,11 +56,13 @@ export class ApplicationsService {
     const { search, jobId, offset = 0, limit = 20 } = q;
 
     const filter: FilterQuery<ApplicationDocument> = {};
-    if (jobId) filter.jobId = jobId;
+    // Applications store job references in the `job` field, so filter by it
+    // when a jobId is provided.
+    if (jobId) filter.job = new Types.ObjectId(jobId);
 
     if (search && search.trim()) {
-      const rx = new RegExp(search.trim(), 'i');
-      filter.$or = [{ name: rx }, { email: rx }, { coverText: rx }];
+      const regex = new RegExp(search.trim(), 'i');
+      filter.$or = [{ name: regex }, { email: regex }, { coverText: regex }];
     }
 
     const [items, total] = await Promise.all([

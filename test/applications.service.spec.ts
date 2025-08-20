@@ -16,8 +16,8 @@ describe('ApplicationsService', () => {
     appModel = createApplicationModelMock([]);
     jobModel = createJobModelMock([]);
 
-    // ✅ Add a mongoose-like .exists() mock that your service relies on
-    // It returns a truthy object when the _id exists, otherwise null
+    // Mock a mongoose-like .exists() that returns a truthy object when the
+    // _id exists, otherwise null
     jobModel.exists = jest.fn((filter: any = {}) => {
       const id = filter?._id;
       if (!id) return null;
@@ -77,5 +77,19 @@ describe('ApplicationsService', () => {
     expect(res.message).toBe('Application submitted');
     expect(appModel.create).toHaveBeenCalled();
     expect(jobModel.exists).toHaveBeenCalledWith({ _id: job._id });
+  });
+
+  it('filters applications by jobId', async () => {
+    const job1 = '64d1a47f3d6e2a001f8a1e2c';
+    const job2 = '64d1a47f3d6e2a001f8a1e2d';
+
+    await appModel.create({ job: job1, name: 'A', email: 'a@a.com' });
+    await appModel.create({ job: job2, name: 'B', email: 'b@b.com' });
+
+    const res = await service.findAll({ jobId: job1, limit: 10, offset: 0 });
+
+    expect(res.total).toBe(1);
+    expect(res.items).toHaveLength(1);
+    expect(String(res.items[0].job)).toBe(job1);
   });
 });
