@@ -78,4 +78,18 @@ describe('ApplicationsService', () => {
     expect(appModel.create).toHaveBeenCalled();
     expect(jobModel.exists).toHaveBeenCalledWith({ _id: job._id });
   });
+
+  it('filters applications by jobId', async () => {
+    const job1 = '64d1a47f3d6e2a001f8a1e2c';
+    const job2 = '64d1a47f3d6e2a001f8a1e2d';
+
+    await appModel.create({ job: job1, name: 'A', email: 'a@a.com' });
+    await appModel.create({ job: job2, name: 'B', email: 'b@b.com' });
+
+    const res = await service.findAll({ jobId: job1, limit: 10, offset: 0 });
+
+    expect(res.total).toBe(1);
+    expect(res.items).toHaveLength(1);
+    expect(String(res.items[0].job)).toBe(job1);
+  });
 });

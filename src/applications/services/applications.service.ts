@@ -56,7 +56,12 @@ export class ApplicationsService {
     const { search, jobId, offset = 0, limit = 20 } = q;
 
     const filter: FilterQuery<ApplicationDocument> = {};
-    if (jobId) filter.jobId = jobId;
+    // The `Application` schema stores a reference to the job in the `job`
+    // field. The previous implementation attempted to filter using
+    // `jobId`, which doesn't exist on the model, resulting in the job
+    // filter being ignored and all applications being returned. Use the
+    // correct field so queries actually scope to a specific job.
+    if (jobId) filter.job = new Types.ObjectId(jobId);
 
     if (search && search.trim()) {
       const rx = new RegExp(search.trim(), 'i');
