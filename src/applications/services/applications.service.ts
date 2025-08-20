@@ -56,16 +56,13 @@ export class ApplicationsService {
     const { search, jobId, offset = 0, limit = 20 } = q;
 
     const filter: FilterQuery<ApplicationDocument> = {};
-    // The `Application` schema stores a reference to the job in the `job`
-    // field. The previous implementation attempted to filter using
-    // `jobId`, which doesn't exist on the model, resulting in the job
-    // filter being ignored and all applications being returned. Use the
-    // correct field so queries actually scope to a specific job.
+    // Applications store job references in the `job` field, so filter by it
+    // when a jobId is provided.
     if (jobId) filter.job = new Types.ObjectId(jobId);
 
     if (search && search.trim()) {
-      const rx = new RegExp(search.trim(), 'i');
-      filter.$or = [{ name: rx }, { email: rx }, { coverText: rx }];
+      const regex = new RegExp(search.trim(), 'i');
+      filter.$or = [{ name: regex }, { email: regex }, { coverText: regex }];
     }
 
     const [items, total] = await Promise.all([

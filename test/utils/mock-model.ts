@@ -94,7 +94,8 @@ export function createApplicationModelMock(initial: any[] = []) {
       return new MockArrayQuery(items as any);
     }),
     countDocuments: jest.fn(async (filter: any = {}) => {
-      return (await createApplicationModelMock(data).find(filter).exec()).length;
+      return (await createApplicationModelMock(data).find(filter).exec())
+        .length;
     }),
   };
 }
