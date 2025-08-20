@@ -12,6 +12,22 @@ Companies (admin) can post jobs; anyone can view jobs and submit applications.
 - **Port:** `8080` (configurable via `PORT`)
 - **Healthcheck:** `GET /api/healthz`
 
+## 🙋‍♀️ Newcomer Guide
+
+If this is your first time looking at the project, here's a quick tour and some next steps.
+
+- **Module layout** – Feature modules live under `src/` (`jobs`, `applications`, `health`). Each module groups a controller, service, and Mongoose schema.
+- **App bootstrap** – `main.ts` wires up global middleware (Helmet, compression, CORS) and validation pipes, while `AppModule` loads configuration and connects to MongoDB.
+- **Auth & validation** – Admin-only endpoints use a lightweight Basic Auth guard, and a custom pipe validates MongoDB ObjectId parameters.
+
+### What to learn next
+
+1. **NestJS fundamentals** – modules, controllers, providers, and dependency injection.
+2. **DTO validation** – `class-validator`, `class-transformer`, and custom pipes.
+3. **Mongoose persistence** – schema definitions, model injection, and querying.
+4. **Authentication patterns** – extend Basic Auth to JWT or session-based strategies.
+5. **API tooling** – customize Swagger docs and explore testing (`npm test`) and linting.
+
 ---
 
 ## ✨ Features
@@ -33,33 +49,43 @@ Companies (admin) can post jobs; anyone can view jobs and submit applications.
 
 ```
 src/
+  app.controller.spec.ts
+  app.controller.ts
+  app.module.ts
+  app.service.ts
+  main.ts
   applications/
-    applications.controller.ts
-    applications.module.ts
-    applications.service.ts
+    application.module.ts
+    controller/
+      application.controller.ts
     dto/
+      application-response.dto.ts
       create-application.dto.ts
+      query-applications.dto.ts
     schemas/
       application.schema.ts
+    services/
+      applications.service.ts
   jobs/
+    jobs.module.ts
+    controller/
+      jobs.controller.ts
     dto/
       create-job.dto.ts
       query-jobs.dto.ts
-    jobs.controller.ts
-    jobs.module.ts
-    jobs.service.ts
     schemas/
       job.schema.ts
+    service/
+      jobs.service.ts
   common/
     guards/
       basic-auth.guard.ts
     pipes/
       objectid.pipe.ts
   health/
-    health.controller.ts
     health.module.ts
-  app.module.ts
-  main.ts
+    controller/
+      health.controller.ts
 ```
 
 ---
@@ -89,6 +115,7 @@ All runtime secrets are stored in `.env` files which are **not committed** to gi
 4. Local run:
    ```bash
    npm run start:dev
+   ```
 
 ## 🧪 Quick Start (Local)
 
@@ -203,7 +230,10 @@ curl http://localhost:8080/api/jobs/<jobId>
 
 ### Jobs — Create (Admin only)
 ```bash
-curl -X POST http://localhost:8080/api/jobs   -H "Content-Type: application/json"   -H "Authorization: Basic $(printf 'devAdmin:devPass' | base64)"   -d '{
+curl -X POST http://localhost:8080/api/jobs \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Basic $(printf 'devAdmin:devPass' | base64)" \
+  -d '{
     "title": "Backend Engineer",
     "company": "Globex",
     "location": "Remote",
@@ -213,7 +243,9 @@ curl -X POST http://localhost:8080/api/jobs   -H "Content-Type: application/json
 
 ### Applications — Submit
 ```bash
-curl -X POST http://localhost:8080/api/applications   -H "Content-Type: application/json"   -d '{
+curl -X POST http://localhost:8080/api/applications \
+  -H "Content-Type: application/json" \
+  -d '{
     "jobId": "<jobId>",
     "name": "Jane Doe",
     "email": "jane@example.com",
@@ -231,7 +263,13 @@ curl -X POST http://localhost:8080/api/applications   -H "Content-Type: applicat
 Build & run:
 ```bash
 docker build -t jobboard-backend:prod .
-docker run -p 8080:8080   -e NODE_ENV=production   -e PORT=8080   -e MONGODB_URI="mongodb+srv://user:pass@cluster/db"   -e ADMIN_USER="realAdmin"   -e ADMIN_PASS="superSecret"   jobboard-backend:prod
+docker run -p 8080:8080 \
+  -e NODE_ENV=production \
+  -e PORT=8080 \
+  -e MONGODB_URI="mongodb+srv://user:pass@cluster/db" \
+  -e ADMIN_USER="realAdmin" \
+  -e ADMIN_PASS="superSecret" \
+  jobboard-backend:prod
 ```
 
 ### Docker Compose
