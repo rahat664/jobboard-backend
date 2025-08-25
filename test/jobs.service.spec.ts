@@ -1,5 +1,6 @@
 // test/jobs.service.spec.ts
 import { Test } from '@nestjs/testing';
+import { NotFoundException } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { JobsService } from '../src/jobs/service/jobs.service';
 
@@ -64,6 +65,15 @@ function makeJobModelMock(seed: any[] = []) {
       return {
         lean: jest.fn(() => found),
         exec: jest.fn(() => found),
+      };
+    }),
+
+    findByIdAndDelete: jest.fn((id: string) => {
+      const idx = state.data.findIndex((d) => String(d._id) === String(id));
+      const deleted = idx >= 0 ? state.data.splice(idx, 1)[0] : null;
+      return {
+        lean: jest.fn(() => deleted),
+        exec: jest.fn(() => deleted),
       };
     }),
   };
@@ -143,5 +153,23 @@ describe('JobsService', () => {
 
     expect(jobModel.findById).toHaveBeenCalled();
     expect(one.title).toBe('X');
+  });
+
+  it('removes a job', async () => {
+    const c = await service.create({
+      title: 'Del',
+      company: 'Corp',
+      location: 'Remote',
+      description: 'to delete',
+      isActive: true,
+    } as any);
+
+    const res = await service.remove(String((c as any)._id));
+
+    expect(jobModel.findByIdAndDelete).toHaveBeenCalled();
+    expect(res).toEqual({ message: 'Job deleted' });
+    await expect(service.findOne(String((c as any)._id))).rejects.toThrow(
+      NotFoundException,
+    );
   });
 });

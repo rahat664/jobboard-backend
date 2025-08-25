@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Delete,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -74,5 +75,16 @@ export class JobsController {
   @ApiBadRequestResponse({ description: 'Validation error' })
   create(@Body() dto: CreateJobDto) {
     return this.service.create(dto);
+  }
+
+  @Delete(':id')
+  @UseGuards(BasicAuthGuard)
+  @ApiBasicAuth('basic')
+  @ApiOperation({ summary: 'Delete a job (admin only)' })
+  @ApiParam({ name: 'id', description: 'MongoDB ObjectId' })
+  @ApiOkResponse({ description: 'Job deleted' })
+  @ApiNotFoundResponse({ description: 'Job not found' })
+  remove(@Param('id', new ParseObjectIdPipe()) id: string) {
+    return this.service.remove(id);
   }
 }

@@ -40,4 +40,10 @@ export class JobsService {
     if (!job) throw new NotFoundException('Job not found');
     return job;
   }
+
+  async remove(id: string) {
+    const job = await this.jobModel.findByIdAndDelete(id).lean();
+    if (!job) throw new NotFoundException('Job not found');
+    return { message: 'Job deleted' };
+  }
 }

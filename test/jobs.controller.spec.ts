@@ -16,6 +16,7 @@ describe('JobsController', () => {
             findAll: jest.fn(),
             findOne: jest.fn(),
             create: jest.fn(),
+            remove: jest.fn(),
           },
         },
       ],
@@ -49,5 +50,12 @@ describe('JobsController', () => {
     const res = await controller.create({ title: 'X' } as any);
     expect(service.create).toHaveBeenCalled();
     expect((res as any).id).toBe('1');
+  });
+
+  it('remove calls service.remove', async () => {
+    service.remove.mockResolvedValue({ message: 'Job deleted' } as any);
+    const res = await controller.remove('64d1a47f3d6e2a001f8a1e2c');
+    expect(service.remove).toHaveBeenCalledWith('64d1a47f3d6e2a001f8a1e2c');
+    expect(res).toEqual({ message: 'Job deleted' });
   });
 });
