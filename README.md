@@ -36,6 +36,7 @@ If this is your first time looking at the project, here's a quick tour and some 
     - `GET /api/jobs` — list jobs (search, pagination)
     - `GET /api/jobs/:id` — job details
     - `POST /api/jobs` — create job (**admin only** via Basic Auth)
+    - `DELETE /api/jobs/:id` — delete job (**admin only**)
 - Applications
     - `POST /api/applications` — submit an application (name, email, CV link or cover text)
 - Healthcheck
@@ -239,6 +240,12 @@ curl -X POST http://localhost:8080/api/jobs \
     "location": "Remote",
     "description": "NestJS, MongoDB, AWS"
   }'
+```
+
+### Jobs — Delete (Admin only)
+```bash
+curl -X DELETE http://localhost:8080/api/jobs/<jobId> \
+  -H "Authorization: Basic $(printf 'devAdmin:devPass' | base64)"
 ```
 
 ### Applications — Submit
